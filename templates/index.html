@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f0f0f0;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #chat-container {
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      padding: 30px 30px 20px 30px;
+      width: 410px;
+      min-width:320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #chat-title {
+      font-size: 2em;
+      margin-bottom: 15px;
+    }
+    #chat-window {
+      border: 1px solid #ccc; 
+      border-radius: 5px;
+      background: #fafafa;
+      padding: 10px; 
+      width: 350px; 
+      height: 330px; 
+      overflow-y: scroll;
+      margin-bottom: 20px;
+      font-size: 1.05em;
+    }
+    #user-input {
+      width: 260px;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-right: 6px;
+    }
+    button {
+      padding: 8px 20px;
+      border-radius: 4px;
+      border: none;
+      background: #3f51b5;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #303f9f;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="chat-title"><b>Chatbot</b></div>
+    <div id="chat-window"></div>
+    <div style="display: flex; width: 100%;">
+      <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+  <script>
+    function sendMessage() {
+      var inputField = document.getElementById('user-input');
+      var message = inputField.value.trim();
+      if (!message) return;
+
+      var chatWindow = document.getElementById('chat-window');
+      chatWindow.innerHTML += '<div><b>You:</b> ' + message + '</div>';
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      fetch('/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: message})
+      })
+      .then(response => response.json())
+      .then(data => {
+        chatWindow.innerHTML += '<div><b>Bot:</b> ' + data.response + '</div>';
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        inputField.value = '';
+        inputField.focus();
+      })
+      .catch(error => {
+        chatWindow.innerHTML += '<div><b>Bot:</b> Sorry, there was a problem.</div>';
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        inputField.value = '';
+        inputField.focus();
+      });
+    }
+    document.getElementById('user-input').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
